@@ -51,7 +51,7 @@ There are two kinds of reasons why.
 # Where can I share feedback on the blog? (What worked, what didn't, questions, etc)
 I'm glad you asked! I've set up a form right below this, where you can enter your email, comment and "POST" a comment to me! 
 
-<form action="http://formspree.io/kavishwarvyom@berkeley.edu" method="POST">
+<form action="https://formspree.io/kavishwarvyom@berkeley.edu" method="POST">
 Your email<br><input type="email" name="_replyto"><br>
 
 Comment<br><textarea name="body" rows="10" cols="50"></textarea><br><input type="submit" value="Send"></form>
