@@ -87,7 +87,7 @@ While I won't spend too much time on how the "word pieces" (as shown in the exam
 
 * WordPiece itself is Google-internal only, but they have also released SentencePiece [[13]](https://github.com/google/sentencepiece), a similar tokenizer/de-tokenizer that uses many of the same techniques; if you want to train your own model, that might be a good place to start.
 
-* As noted in the diagram, the input and output embedding layers are identical amd share the same weight matrix, an idea developed by *Press et al* in 2017 [[14]](https://arxiv.org/pdf/1608.05859.pdf).
+* As noted in the diagram, the input and output embedding layers are identical and share the same weight matrix, an idea developed by *Press et al* in 2017 [[14]](https://arxiv.org/pdf/1608.05859.pdf).
 
 #### *Positional Encoding*
 <img src="/assets/nlp/transformers_electric/Figure_7.jpg" >
@@ -159,7 +159,13 @@ $$L(W) = \frac{1}{S} \sum_{(T, S \in S)} - \log p_{W}(T|S)$$
 
 $$p_{W}(T|S) = \prod_{y_i \in S} p_{W}(y_{i} | y_{i-1}, y_{i-2} ... )$$
 
-When testing, we simply sample the most likely output (or, in the case of *beam search*, the k-most likely outputs) at each time step, and add it to our current partial translation ((s), if using beam search to maintain a a list of k-most likely partials), which is fed into the decoder at each time step.
+* When training, we use *teacher-forcing*; regardless of the output of the decoder at  $$T = t$$, we feed in the ground-truth tokens as our decoder input for $$T  = t + 1$$; this prevents the model's errors at $$t$$ propogating further in its decoded output for $$t + 1$$ and further while training, and makes it much easier to train the model.
+
+* Importantly, because we know the ground-truth labels while training, we can actually parallelize the training for a sequence very effectively by batching together all the possible "partial translations" and corresponding targets together, as shown in Figure 11 below [[17]](https://pixabay.com/illustrations/clipart-fish-sea-water-swim-3418189/):
+
+<img src="/assets/nlp/transformers_electric/Figure_11.jpg">
+
+* When testing, we simply sample the most likely output by taking **the last element of the final softmax** at each (or, in the case of *beam search*, the k-most likely outputs of the last position) at each time step, and add it to our current partial translation ((s), if using beam search to maintain a a list of k-most likely partials), which is fed into the decoder at each time step.
 
 For more details on the hyperparameter, GPU and dataset configurations, feel free to check out the original paper[[2]](https://arxiv.org/pdf/1706.03762.pdf) - I focused more on the idea-level for each component, but if you're looking to use it on your own dataset, the original paper is the best place to start. 
 
@@ -170,7 +176,7 @@ This will become more fleshed out in the next post (when we look at direct desce
 * It established itself as state-of-the-art on machine translation tasks (as shown in the table below), while also requiring less FLOPS (Floating Point Operations) to train to this state-of-the-art parameter setting
 * Gave rise to a medley of Transformer-based architectures, some of which we will go through in the next post!
 
-<img src="/assets/nlp/transformers_electric/Figure_11.jpg"/>
+<img src="/assets/nlp/transformers_electric/Figure_12.jpg"/>
 
 ## Citations
 * [[1]](https://pixabay.com/photos/high-voltage-feed-windstrom-1290375/): *High Voltage Feed Windstrom*: Erich Westendarp, Pixabay
@@ -190,3 +196,4 @@ Language Understanding*: Devlin et al, 2019
 * [[14]](https://arxiv.org/pdf/1608.05859.pdf) *Using the Output Embedding to Improve Language Models*: Press et al, 2017
 * [[15]](http://jalammar.github.io/illustrated-transformer/) *Illustrated Transformer*: Jay Alammar
 * [[16]](https://arxiv.org/pdf/1607.06450.pdf) *Layer Normalization*: Ba et al, 2016
+* [[17]](https://pixabay.com/illustrations/clipart-fish-sea-water-swim-3418189/) *Fish Sea Water Swim*: kreatikar, Pixabay
