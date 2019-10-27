@@ -10,7 +10,11 @@ categories: [nlp]
 (**Above**: An electric transformer, that I think oddly looks like an actual Transformer network, image courtesy [[1]](https://pixabay.com/photos/high-voltage-feed-windstrom-1290375/)
 
 
-For my first blog post on NLP, I'm actually going to split it into two parts. In the first part, we're going to discuss the Transformer network [[2]](https://arxiv.org/pdf/1706.03762.pdf) (*Vaswani et al, 2017*), while in the second part we'll go over three "descendants" of the Transformer - *GPT* [[3]](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf) (*Radford et al, 2018*), *GPT-2*[[4]](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) (*Radford et al, 2019*) and *BERT* [[5]](https://arxiv.org/pdf/1810.04805.pdf) (*Devlin et al, 2019*). 
+My first post on NLP is actually going to be split into two parts.
+
+* In today's post (*1a*), we're going to discuss the Transformer network [[2]](https://arxiv.org/pdf/1706.03762.pdf) (*Vaswani et al, 2017*)
+
+* In the next post (*1b*), we'll go over three "descendants" of the Transformer - *GPT* [[3]](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf) (*Radford et al, 2018*), *GPT-2*[[4]](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) (*Radford et al, 2019*) and *BERT* [[5]](https://arxiv.org/pdf/1810.04805.pdf) (*Devlin et al, 2019*). 
 
 These networks, only developed over the last 2-3 years, have quickly replaced Recurrent Neural Networks and their variants (LSTMs, GRUs) as the new state-of-the-art for all kinds of NLP based tasks, so I wanted to go deeper into these networks and understand how and why they are so effective.
 
@@ -21,11 +25,15 @@ For a significant amount of time, recurrent neural networks (and variants) were 
 
 <img src="/assets/nlp/transformers_electric/Figure_1.jpg" width="900"/>
 
-The default structure in NLP, therefore, was an encoder-decoder mechanism based on the famous Seq2Seq paper [[7]](https://papers.nips.cc/paper/5346-sequence-to-sequence-learning-with-neural-networks.pdf) in 2014, as shown by the example below in Figure 2 (courtesy Stephen Merrity [[8]](https://smerity.com/articles/2016/google_nmt_arch.html)) :
+The default structure in NLP, therefore, was an encoder-decoder mechanism based on the famous Seq2Seq paper [[7]](https://papers.nips.cc/paper/5346-sequence-to-sequence-learning-with-neural-networks.pdf) in 2014 as shown by the example below in Figure 2 (courtesy Stephen Merrity [[8]](https://smerity.com/articles/2016/google_nmt_arch.html)) :
 
 <img src="/assets/nlp/transformers_electric/Figure_2.png" width="700"/>
 
-However, in terms of training and scaling these models, there were serious issues. Predominantly, all variants of recurrent neural networks are very *sequential* in nature; each step of computation relies on the previous steps/states, making it hard to parallelize and scale up such models.
+However, in terms of training and scaling these models, there were serious issues. Predominantly, all variants of recurrent neural networks are very *sequential* in nature; each step of computation relies on the previous steps/states, making it hard to parallelize and scale up such models, for the following reasons:
+
+* It's hard to vectorize/parallelize training for LSTMs; if I have a length $$n$$ input sentence I want to feed into to my LSTM, I have to feed each token in **one-by-one**; in contrast, for instance, a CNN takes an entire image in one go!
+
+* This sequential nature of the network leads to smaller batch sizes (per GPU) due to the increased amount of computation and stored states required for training; this, in turn, also causes **more memory accesses** per epoch, making training more inefficient.
 
 The problem of scale and computation is especially magnified in NLP; for instance, the Seq2Seq model by *Sutskever et al* has ~ **380 million** parameters, and was trained on a dataset with **12 million** sentences, **348 million** French words and **304 million** English words! Without significant parallelization capabilities, training these models is a real challenge - even if you have lots of GPUs, you need to be able to spread the load across them effectively.
 
@@ -49,7 +57,7 @@ However, when it came to the next question, your eyes did not look (for too long
 
 In both cases, your mind used the context it had to **attend** to different parts of the input; this is the core idea of attention as a mechanism, looking for the relevant parts in an input based on your current context and state.
 
-In the context of NLP, attention had been proposed as a method to give more context when decoding and producing the output; below, in Figure 3, we see one of the first such uses, in the seminal work *Neural Machine Translation by Learning to Jointly Align and Translate* by *Bahdanau et al*[[10]](https://arxiv.org/pdf/1409.0473.pdf) in 2016.
+In the context of NLP, attention had been proposed as a method to give more context when decoding and producing the output; below, in Figure 3, we see one of the first such uses, in the seminal work *Neural Machine Translation by Learning to Jointly Align and Translate* by *Bahdanau et al* [[10]](https://arxiv.org/pdf/1409.0473.pdf) in 2016.
 
 <img src="/assets/nlp/transformers_electric/Figure_3.jpg"/>
 
@@ -83,7 +91,7 @@ While I won't spend too much time on how the "word pieces" (as shown in the exam
 
 * To come up with the most efficient set of "word pieces", they use the Byte Pair Encoding algorithm, adapted for word segmentation using the same method as in "*Neural Machine Translation of Rare Words with Subword Units*" [[12]](https://www.aclweb.org/anthology/P16-1162.pdf); this works by iteratively merging the most common pair of "bytes" (in this case, n-grams) in a corpus into one "byte"/symbol, which is later used to encode and decode the input text. 
 
-* Both the source and target languages (in the NMT case) use the same *shared wordpiece*, making it easier to directly copy rare words/numbers from the source to the target representation. As seen in the diagrams above, they also use some tricks, such as a special start of word symbol "**_**", to help reverse the tokenization.
+* Both the source and target languages (in the NMT case) use the same *shared set of wordpieces*, making it easier to directly copy rare words/numbers from the source to the target representation. As seen in the diagrams above, they also use some tricks, such as a special start of word symbol "**_**", to help reverse the tokenization.
 
 * WordPiece itself is Google-internal only, but they have also released SentencePiece [[13]](https://github.com/google/sentencepiece), a similar tokenizer/de-tokenizer that uses many of the same techniques; if you want to train your own model, that might be a good place to start.
 
@@ -113,7 +121,11 @@ Now we turn our *attention* (pun, once again, intended) to the attention mechani
 
 <img src="/assets/nlp/transformers_electric/Figure_9a.jpg" />
 
-Transformer networks "transform" the input embedding for each token/part of the input (for stacked layers) into three parts - *queries*, *keys* and *values*. The queries, keys and values are all generated from each token, which allows the Transformer to perform *self-attention* (where the outputs are based on attending to different parts of itself); the queries and keys model the interaction between different parts of the inputs, while the values are generated by keeping in mind what information might be useful for the output (or for upstream layers).
+Transformer networks "transform" the input embedding for each token/part of the input (for stacked layers) into three parts - *queries*, *keys* and *values*. The queries, keys and values are all generated from each token, which allows the Transformer to perform *self-attention* (where the outputs are based on attending to different parts of itself).
+
+* The queries and keys model the interaction between different parts of the inputs
+
+* The values are generated by keeping in mind what information might be useful for the output (or for upstream layers), and are what we modify/blend via query-key dot products.
 
 
 <img src="/assets/nlp/transformers_electric/Figure_9b.jpg" />
@@ -122,7 +134,7 @@ As the transformations can get slightly long, I've used Figures 9b and 9c (above
 * $$W_{Q}, W_{K}, W_{V}$$ are all *learned* through the course of training the network, and are applied to each set of input tokens *separately* (which ties back into the original motivation of **parallelism** in NLP!)
 
 * We "scale* down the output of the $$q_1^{T}k_{1}$$ by $$\sqrt{d_k}$$ to make the softmax gradients better 
-behaved (if we were to softmax without rescaling, $$p_{114} = \dfrac{e^{112}}{e^{96} + e^{112}} \approx 1.0$$)
+behaved (if we were to softmax without rescaling, $$p_{112} = \dfrac{e^{112}}{e^{96} + e^{112}} \approx 1.0$$)
 
 
 #### *Multi-Head Attention*
@@ -165,6 +177,8 @@ $$p_{W}(T|S) = \prod_{y_i \in S} p_{W}(y_{i} | y_{i-1}, y_{i-2} ... )$$
 
 <img src="/assets/nlp/transformers_electric/Figure_11.jpg">
 
+* Note that this trick **can't be used with RNNs** - an RNN needs to compute the state at each time step before taking in the next input, making it incapable of using such a method to train well; this shows us how the Transformer harnesses parallelism much more efficiently!
+
 * When testing, we simply sample the most likely output by taking **the last element of the final softmax** at each (or, in the case of *beam search*, the k-most likely outputs of the last position) at each time step, and add it to our current partial translation ((s), if using beam search to maintain a a list of k-most likely partials), which is fed into the decoder at each time step.
 
 For more details on the hyperparameter, GPU and dataset configurations, feel free to check out the original paper[[2]](https://arxiv.org/pdf/1706.03762.pdf) - I focused more on the idea-level for each component, but if you're looking to use it on your own dataset, the original paper is the best place to start. 
@@ -179,7 +193,7 @@ This will become more fleshed out in the next post (when we look at direct desce
 <img src="/assets/nlp/transformers_electric/Figure_12.jpg"/>
 
 ## Citations
-* [[1]](https://pixabay.com/photos/high-voltage-feed-windstrom-1290375/): *High Voltage Feed Windstrom*: Erich Westendarp, Pixabay
+* [[1]](https://pixabay.com/photos/high-voltage-feed-windstrom-1290375/) *High Voltage Feed Windstrom*: Erich Westendarp, Pixabay
 * [[2]](https://arxiv.org/pdf/1706.03762.pdf) *Attention is all you need*: Vaswani et al, 2017
 * [[3]](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf) *Improving Language Understanding by Generative Pre-Training*: Radford et al, 2018
 * [[4]](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) *Language Models are Unsupervised Multitask Learners*: Radford et al, 2019
