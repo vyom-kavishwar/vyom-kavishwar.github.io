@@ -7,7 +7,7 @@ title:  The Hitchiker's Guide to the ML Galaxy
 permalink: /
 ---
 # Who are you?
-Hey there! I'm Vyom, a Masters student at Berkeley studying machine learning, data science, and anything that makes our machines smarter and closer to actual intelligence.
+Hey there! I'm Vyom, a Master's student at Berkeley studying machine learning, data science, and anything that makes our machines smarter and closer to actual intelligence.
 
 * If you want to start reading my posts, you can go to "Categorized Posts" to see each one by series, or go to "All Posts" to see the entire list (not much of a difference - yet!)
 
