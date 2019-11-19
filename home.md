@@ -28,7 +28,7 @@ Every week-ish, I will write a post as part of an ongoing series based on a broa
 
 * *RL* (Reinforcement Learning): This one will cover a spectrum of RL-related algorithms (variants of policy gradients, q-learning, actor-critic, model-based) but will also go into areas that have intersections with RL, such as meta-learning, multi-task learning, etc.
 
-* *Cool new stuff*: For all the other things going on in machine learning that don't quite fit into the first three categories, I'll add this series; this will (hopefully) cover all kinds of things, from AutoML to Deep Geometric ML and more!
+* *Quests*: For all the other things going on in machine learning that don't quite fit into the first three categories, I'll add this series - as the name suggests, this will be a bit more exploratory than just paper reviews, going into all kinds of things, from AutoML to Deep Geometric ML and more! 
 
 * *Foundations*: This series will go into the basics of machine learning; unlike the first four (which will be a bit more technical), this will be oriented towards any and all potential audiences - people interested in AI, people worried AI might kill their jobs, and even people who might not care now (but will hopefully care soon!). (P.S. This series is named after Isaac Asimov's Foundations series, a fantastic set of science-fiction stories and novels that you should definitely read if you get the chance)
 
