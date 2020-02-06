@@ -4,11 +4,11 @@ title: About
 permalink: /about/
 ---
 
-# Who am I? (A bit more detailed than what's on the home page)
+# Who am I?
 
 I'm Vyom Kavishwar, an Anglo-Indian in my 20s (born in Mumbai, spent half my childhood in London and the other half in Mumbai), currently studying at UC Berkeley as a Master's student.
 
-I did my undergraduate education here too, and had a blast (which is why I'm still here!);as you can tell from the title of this blog, I'm very interested in machine learning, and I'm exploring how I can become more competent at it and carve out a career in the field (if you're interested in checking out my [resume]({{ site.baseurl }}/files/Resume_Vyom_Kavishwar_Fall_2019.pdf)). 
+I did my undergraduate education here too, and had a blast (which is why I'm still here!); as you can tell from the title of this blog, I'm very interested in machine learning, and I'm exploring how I can become more competent at it and carve out a career in the field (if you're interested in checking out my [resume]({{ site.baseurl }}/files/Resume_Vyom_Kavishwar_Fall_2019.pdf)). 
 
 # Work and machine learning aside, what else defines me?
 

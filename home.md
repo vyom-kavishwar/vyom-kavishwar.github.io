@@ -6,16 +6,18 @@ layout: page
 title:  The Hitchiker's Guide to the ML Galaxy
 permalink: /
 ---
-# Who are you?
-Hey there! I'm Vyom, a Master's student at Berkeley studying machine learning, data science, and anything that makes our machines smarter and closer to actual intelligence.
+# Latest posts
+<ul>
+{% for post in site.posts limit:3 %}
+<li>
+    <a href="{{ post.url }}">
+    <h3> {{ post.title }} </h3>
+    </a>
+</li>
+{% endfor %}
+</ul>
 
-* If you want to start reading my posts, you can go to "Categorized Posts" to see each one by series, or go to "All Posts" to see the entire list (not much of a difference - yet!)
 
-* If you want to know more about just who is behind this blog, check out the "About" page
-
-* If you're not sure what this blog is, why it exists, keep scrolling down, and hopefully I'll answer your questions.
-
-Thanks for checking this page out, and I hope you enjoy reading this blog!
 
 # What is this blog?
 It's a blog dedicated to AI and machine learning, which will predominantly be centred around research papers; a mix of older classics, forgotten treasures and the avant-garde.
